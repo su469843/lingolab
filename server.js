@@ -3,6 +3,18 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import wordsHandler from './api/words/index.js';
 import sentencesHandler from './api/sentences/index.js';
+<<<<<<< HEAD
+=======
+import registerHandler from './api/auth/register.js';
+import loginHandler from './api/auth/login.js';
+import meHandler from './api/auth/me.js';
+
+import homeworkHandler from './api/homework/index.js';
+import studentHomeworkHandler from './api/homework/student.js';
+import submitHomeworkHandler from './api/homework/submit.js';
+import textbooksHandler from './api/textbooks/index.js';
+import batchTextbooksHandler from './api/textbooks/batch.js';
+>>>>>>> 50bbfd0 (Initial commit: Complete LingoLab Application v1)
 
 dotenv.config();
 
@@ -23,6 +35,20 @@ const adapter = (handler) => async (req, res) => {
 };
 
 // Routes
+<<<<<<< HEAD
+=======
+app.all('/api/auth/register', adapter(registerHandler));
+app.all('/api/auth/login', adapter(loginHandler));
+app.all('/api/auth/me', adapter(meHandler));
+
+app.all('/api/homework', adapter(homeworkHandler));
+app.all('/api/homework/student', adapter(studentHomeworkHandler));
+app.all('/api/homework/submit', adapter(submitHomeworkHandler));
+
+app.all('/api/textbooks', adapter(textbooksHandler));
+app.all('/api/textbooks/batch', adapter(batchTextbooksHandler));
+
+>>>>>>> 50bbfd0 (Initial commit: Complete LingoLab Application v1)
 app.all('/api/words', adapter(wordsHandler));
 app.all('/api/sentences', adapter(sentencesHandler));
 

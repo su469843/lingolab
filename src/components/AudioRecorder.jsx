@@ -47,7 +47,11 @@ const AudioRecorder = ({ targetText }) => {
     const [transcript, setTranscript] = useState('');
     const [score, setScore] = useState(null);
     const [error, setError] = useState('');
+<<<<<<< HEAD
     const [recognition, setRecognition] = useState(null);
+=======
+    const recognitionRef = React.useRef(null);
+>>>>>>> 50bbfd0 (Initial commit: Complete LingoLab Application v1)
 
     useEffect(() => {
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -69,21 +73,37 @@ const AudioRecorder = ({ targetText }) => {
                 const sim = similarity(transcript, targetText);
                 setScore(Math.round(sim * 100));
             };
+<<<<<<< HEAD
             setRecognition(recog);
         } else {
             setError('Browser does not support Speech Recognition.');
+=======
+            recognitionRef.current = recog;
+        } else {
+            console.warn('Browser does not support Speech Recognition.');
+>>>>>>> 50bbfd0 (Initial commit: Complete LingoLab Application v1)
         }
     }, [targetText]);
 
     const toggleRecording = () => {
+<<<<<<< HEAD
         if (!recognition) return;
         if (isRecording) {
             recognition.stop();
+=======
+        if (!recognitionRef.current) return;
+        if (isRecording) {
+            recognitionRef.current.stop();
+>>>>>>> 50bbfd0 (Initial commit: Complete LingoLab Application v1)
         } else {
             setTranscript('');
             setScore(null);
             setError('');
+<<<<<<< HEAD
             recognition.start();
+=======
+            recognitionRef.current.start();
+>>>>>>> 50bbfd0 (Initial commit: Complete LingoLab Application v1)
         }
     };
 

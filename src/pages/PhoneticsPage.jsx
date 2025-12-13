@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import React from 'react';
 import { Volume2 } from 'lucide-react';
+=======
+import React, { useState, useEffect } from 'react';
+import { Volume2, PlayCircle, CheckCircle, XCircle } from 'lucide-react';
+>>>>>>> 50bbfd0 (Initial commit: Complete LingoLab Application v1)
 
 const vowels = [
     { symbol: 'i:', examples: 'see, tree' },
@@ -51,6 +56,7 @@ const consonants = [
     { symbol: 'j', examples: 'yes, yellow' },
 ];
 
+<<<<<<< HEAD
 import { useState } from 'react';
 import { Volume2, BookOpen, GraduationCap } from 'lucide-react';
 import PhoneticPractice from '../components/PhoneticPractice';
@@ -64,12 +70,26 @@ const PhoneticsPage = () => {
         // Simple TTS as fallback. In real app, rely on audio files for accurate phonemes.
         // TTS often struggles with isolated phonemes.
         // Try to speak an example word instead for better clarity
+=======
+const allPhonetics = [...vowels, ...consonants];
+
+const PhoneticsPage = () => {
+    const [mode, setMode] = useState('learn'); // 'learn' | 'quiz'
+    const [quizBatch, setQuizBatch] = useState([]);
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+    const [score, setScore] = useState(0);
+    const [showResult, setShowResult] = useState(false);
+    const [lastResult, setLastResult] = useState(null); // 'correct' | 'incorrect'
+
+    const playSound = (symbol, examples) => {
+>>>>>>> 50bbfd0 (Initial commit: Complete LingoLab Application v1)
         const exampleWord = examples.split(',')[0];
         const utterance = new SpeechSynthesisUtterance(exampleWord);
         utterance.lang = 'en-US';
         window.speechSynthesis.speak(utterance);
     };
 
+<<<<<<< HEAD
     const allItems = [...vowels, ...consonants];
 
     return (
@@ -118,6 +138,139 @@ const PhoneticsPage = () => {
                     </section>
                 </>
             )}
+=======
+    const startQuiz = () => {
+        // Randomly select 5 items
+        const shuffled = [...allPhonetics].sort(() => 0.5 - Math.random());
+        setQuizBatch(shuffled.slice(0, 5));
+        setCurrentQuestionIndex(0);
+        setScore(0);
+        setShowResult(false);
+        setLastResult(null);
+        setMode('quiz');
+    };
+
+    const handleAnswer = (selectedSymbol) => {
+        const correctSymbol = quizBatch[currentQuestionIndex].symbol;
+        if (selectedSymbol === correctSymbol) {
+            setScore(prev => prev + 1);
+            setLastResult('correct');
+        } else {
+            setLastResult('incorrect');
+        }
+
+        setTimeout(() => {
+            setLastResult(null);
+            if (currentQuestionIndex < quizBatch.length - 1) {
+                setCurrentQuestionIndex(prev => prev + 1);
+            } else {
+                setShowResult(true);
+            }
+        }, 1000);
+    };
+
+    useEffect(() => {
+        if (mode === 'quiz' && !showResult && quizBatch.length > 0) {
+            // Auto play sound when question changes
+            const item = quizBatch[currentQuestionIndex];
+            setTimeout(() => playSound(item.symbol, item.examples), 500);
+        }
+    }, [mode, currentQuestionIndex, showResult, quizBatch]);
+
+    if (mode === 'quiz') {
+        if (showResult) {
+            return (
+                <div className="page-container" style={{ textAlign: 'center', padding: '4rem' }}>
+                    <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>测验完成!</h2>
+                    <p style={{ fontSize: '1.5rem', marginBottom: '2rem' }}>
+                        得分: {score} / {quizBatch.length}
+                    </p>
+                    <button className="btn btn-primary" onClick={() => setMode('learn')}>返回学习</button>
+                    <button className="btn btn-outline" onClick={startQuiz} style={{ marginLeft: '1rem' }}>再来一组</button>
+                </div>
+            )
+        }
+
+        const currentItem = quizBatch[currentQuestionIndex];
+
+        return (
+            <div className="page-container" style={{ maxWidth: '800px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                    <h2 className="page-title">听音测验 ({currentQuestionIndex + 1}/{quizBatch.length})</h2>
+                    <button className="btn btn-outline" onClick={() => setMode('learn')}>退出</button>
+                </div>
+
+                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                    <button
+                        className="btn-icon"
+                        style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'var(--primary-color)', color: 'white' }}
+                        onClick={() => playSound(currentItem.symbol, currentItem.examples)}
+                    >
+                        <Volume2 size={40} />
+                    </button>
+                    <p style={{ marginTop: '1rem', color: 'var(--text-medium)' }}>点击播放声音，选择对应的音标</p>
+                </div>
+
+                <div style={{ ...gridStyle, maxWidth: '600px', margin: '0 auto' }}>
+                    {quizBatch.map((item) => (
+                        <div
+                            key={item.symbol}
+                            className="card"
+                            style={{
+                                ...cardStyle,
+                                background: lastResult && item.symbol === currentItem.symbol ? '#dcfce7' :
+                                    lastResult === 'incorrect' && showResult ? '#fee2e2' : 'white'
+                            }}
+                            onClick={() => !lastResult && handleAnswer(item.symbol)}
+                        >
+                            <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>[{item.symbol}]</div>
+                        </div>
+                    ))}
+                </div>
+
+                {lastResult === 'correct' && (
+                    <div style={{ textAlign: 'center', marginTop: '2rem', color: 'green', fontSize: '1.5rem' }}>
+                        <CheckCircle style={{ display: 'inline', marginRight: '0.5rem' }} /> 正确!
+                    </div>
+                )}
+                {lastResult === 'incorrect' && (
+                    <div style={{ textAlign: 'center', marginTop: '2rem', color: 'red', fontSize: '1.5rem' }}>
+                        <XCircle style={{ display: 'inline', marginRight: '0.5rem' }} /> 错误!
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    return (
+        <div className="page-container">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h2 className="page-title">国际音标 (IPA)</h2>
+                <button className="btn btn-primary" onClick={startQuiz}>
+                    <PlayCircle size={20} style={{ marginRight: '0.5rem' }} />
+                    开始听音测验
+                </button>
+            </div>
+            <p style={{ marginBottom: '2rem', color: 'var(--text-medium)' }}>点击卡片听发音 (通过朗读例词演示)</p>
+
+            <section className="dashboard-section" style={{ marginBottom: '3rem' }}>
+                <h3 style={{ marginBottom: '1rem', fontSize: '1.5rem', color: 'var(--primary-color)' }}>元音 (Vowels)</h3>
+                <div style={gridStyle}>
+                    {vowels.map((item) => (
+                        <PhoneticCard key={item.symbol} item={item} onPlay={playSound} />
+                    ))}
+                </div>
+            </section>
+
+            <section className="dashboard-section">
+                <h3 style={{ marginBottom: '1rem', fontSize: '1.5rem', color: 'var(--primary-color)' }}>辅音 (Consonants)</h3>
+                <div style={gridStyle}>
+                    {consonants.map((item) => (
+                        <PhoneticCard key={item.symbol} item={item} onPlay={playSound} />
+                    ))}
+                </div>
+            </section>
+>>>>>>> 50bbfd0 (Initial commit: Complete LingoLab Application v1)
         </div>
     );
 };

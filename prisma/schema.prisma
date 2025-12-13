@@ -6,16 +6,62 @@ generator client {
 }
 
 datasource db {
+<<<<<<< HEAD
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
+=======
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  role      String   @default("VISITOR") // STUDENT, TEACHER, VISITOR
+  name      String?
+  
+  // Teacher Specific
+  teacherCode String? @unique // 5-digit code
+
+  // Student Specific: 关联的老师（通过 Code 查找）
+  teacherId Int?
+  teacher   User?    @relation("TeacherStudents", fields: [teacherId], references: [id])
+  students  User[]   @relation("TeacherStudents")
+
+  // Homework
+  homeworksCreated Homework[] @relation("TeacherHomeworks")
+  homeworkRecords  HomeworkRecord[]
+
+  // Textbooks (Created by Teacher)
+  textbooks Textbook[]
+
+  createdAt DateTime @default(now())
+}
+
+model Textbook {
+  id        Int      @id @default(autoincrement())
+  title     String
+  description String?
+  teacherId Int
+  teacher   User     @relation(fields: [teacherId], references: [id])
+  
+  words     Word[]
+
+  createdAt DateTime @default(now())
+}
+
+>>>>>>> 50bbfd0 (Initial commit: Complete LingoLab Application v1)
 model Word {
   id        Int      @id @default(autoincrement())
   word      String
   phonetic  String?
   meaning   String?
   example   String?
+<<<<<<< HEAD
   createdAt DateTime @default(now())
 }
 
@@ -23,5 +69,41 @@ model Sentence {
   id          Int      @id @default(autoincrement())
   text        String
   translation String?
+=======
+  
+  textbookId Int?
+  textbook   Textbook? @relation(fields: [textbookId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model Homework {
+  id          Int      @id @default(autoincrement())
+  teacherId   Int
+  teacher     User     @relation("TeacherHomeworks", fields: [teacherId], references: [id])
+  
+  title       String
+  type        String   // WORD, SENTENCE
+  contentIds  String   // JSON array of IDs: "[1, 2, 3]"
+  deadline    DateTime?
+  
+  records     HomeworkRecord[]
+
+  createdAt   DateTime @default(now())
+}
+
+model HomeworkRecord {
+  id          Int      @id @default(autoincrement())
+  homeworkId  Int
+  homework    Homework @relation(fields: [homeworkId], references: [id])
+  
+  studentId   Int
+  student     User     @relation(fields: [studentId], references: [id])
+  
+  status      String   @default("PENDING") // PENDING, COMPLETED
+  score       Int?
+  completedAt DateTime?
+  
+>>>>>>> 50bbfd0 (Initial commit: Complete LingoLab Application v1)
   createdAt   DateTime @default(now())
 }
