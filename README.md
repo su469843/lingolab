@@ -1,3 +1,4 @@
+
 # LingoLab - English Learning Platform
 
 A modern English learning application built with React, Vite, and Vercel Serverless Functions.
@@ -55,3 +56,5 @@ A modern English learning application built with React, Vite, and Vercel Serverl
 ## Troubleshooting
 
 - **Database Connection**: If you see "Can't reach database", ensure your firewall/network allows connection to the database port (5432) and that the database URL is correct.
+
+
