@@ -9,7 +9,8 @@ const PhoneticPractice = ({ items }) => {
     const [feedback, setFeedback] = useState(null); // 'correct', 'incorrect'
 
     // Initialize a new group of 5
-    const startNewGroup = () => {
+    // Initialize a new group of 5
+    const startNewGroup = React.useCallback(() => {
         // Randomly select 5 items
         const shuffled = [...items].sort(() => 0.5 - Math.random());
         const selected = shuffled.slice(0, 5);
@@ -18,11 +19,14 @@ const PhoneticPractice = ({ items }) => {
         setCurrentQuestionIndex(0);
         setScore(0);
         setFeedback(null);
-    };
+    }, [items]);
 
     useEffect(() => {
-        startNewGroup();
-    }, [items]);
+        const timer = setTimeout(() => {
+            startNewGroup();
+        }, 0);
+        return () => clearTimeout(timer);
+    }, [startNewGroup]);
 
     const playSound = (symbol, examples) => {
         const exampleWord = examples.split(',')[0];

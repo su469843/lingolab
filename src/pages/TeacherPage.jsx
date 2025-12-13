@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-import React, { useState } from 'react';
-import { useData } from '../context/DataContext';
-import { Trash2, Plus, Save } from 'lucide-react';
-
-const TeacherPage = () => {
-    const { words, sentences, addWord, deleteWord, addSentence, deleteSentence } = useData();
-    const [activeTab, setActiveTab] = useState('words');
-=======
 import React, { useState, useEffect } from 'react';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
@@ -22,14 +13,11 @@ const TeacherPage = () => {
     const [homeworks, setHomeworks] = useState([]);
     const [newHomework, setNewHomework] = useState({ title: '', type: 'WORD', contentIds: [], deadline: '' });
     const [selectedItems, setSelectedItems] = useState([]);
->>>>>>> 50bbfd0 (Initial commit: Complete LingoLab Application v1)
 
     // Forms State
     const [newWord, setNewWord] = useState({ word: '', phonetic: '', meaning: '', example: '' });
     const [newSentence, setNewSentence] = useState({ text: '', translation: '' });
 
-<<<<<<< HEAD
-=======
     // Textbook State
     const [textbooks, setTextbooks] = useState([]);
     const [newTextbook, setNewTextbook] = useState({ title: '', description: '' });
@@ -38,7 +26,6 @@ const TeacherPage = () => {
 
     useEffect(() => {
         const fetchStudents = async () => {
-            /* ... existing fetchStudents logic ... */
             try {
                 const token = localStorage.getItem('token');
                 const res = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } });
@@ -123,9 +110,6 @@ const TeacherPage = () => {
                 alert('作业布置成功!');
                 setNewHomework({ title: '', type: 'WORD', contentIds: [], deadline: '' });
                 setSelectedItems([]);
-                // Manually trigger refresh logic or just set state if we returned it. 
-                // Simplest is to just re-fetch here inline or extract function properly.
-                // Let's re-fetch inline for now to fix the scope issue quickly.
                 const token = localStorage.getItem('token');
                 fetch('/api/homework', { headers: { Authorization: `Bearer ${token}` } })
                     .then(res => res.json())
@@ -143,7 +127,6 @@ const TeacherPage = () => {
         }
     };
 
->>>>>>> 50bbfd0 (Initial commit: Complete LingoLab Application v1)
     const handleAddWord = (e) => {
         e.preventDefault();
         if (!newWord.word) return;
@@ -175,10 +158,6 @@ const TeacherPage = () => {
                 >
                     句子管理 ({sentences.length})
                 </button>
-<<<<<<< HEAD
-            </div>
-
-=======
                 <button
                     className={`btn ${activeTab === 'students' ? 'btn-primary' : 'btn-secondary'}`}
                     onClick={() => setActiveTab('students')}
@@ -272,7 +251,6 @@ const TeacherPage = () => {
                 </div>
             )}
 
->>>>>>> 50bbfd0 (Initial commit: Complete LingoLab Application v1)
             {activeTab === 'words' && (
                 <div className="dashboard-section">
                     {/* Add Word Form */}
@@ -364,8 +342,6 @@ const TeacherPage = () => {
                     </div>
                 </div>
             )}
-<<<<<<< HEAD
-=======
 
             {activeTab === 'homework' && (
                 <div className="dashboard-section">
@@ -470,7 +446,6 @@ const TeacherPage = () => {
                     </div>
                 </div>
             )}
->>>>>>> 50bbfd0 (Initial commit: Complete LingoLab Application v1)
         </div>
     );
 };

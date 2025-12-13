@@ -37,7 +37,7 @@ export default async function handler(req, res) {
         for (const line of lines) {
             // Very basic parser: First word is English, rest is meaning.
             // Improve: Check for phonetic in []
-            let word = '', phonetic = '', meaning = '', example = '';
+            let word = '', phonetic = '', meaning = '';
 
             const parts = line.trim().split(/\s+/);
             if (parts.length > 0) {
@@ -59,7 +59,6 @@ export default async function handler(req, res) {
                         word,
                         phonetic,
                         meaning,
-                        example: '',
                         textbookId: textbookId
                     }
                 });

@@ -6,16 +6,9 @@ generator client {
 }
 
 datasource db {
-<<<<<<< HEAD
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
-
-=======
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
 
 model User {
   id        Int      @id @default(autoincrement())
@@ -54,14 +47,16 @@ model Textbook {
   createdAt DateTime @default(now())
 }
 
->>>>>>> 50bbfd0 (Initial commit: Complete LingoLab Application v1)
 model Word {
   id        Int      @id @default(autoincrement())
   word      String
   phonetic  String?
   meaning   String?
   example   String?
-<<<<<<< HEAD
+  
+  textbookId Int?
+  textbook   Textbook? @relation(fields: [textbookId], references: [id])
+
   createdAt DateTime @default(now())
 }
 
@@ -69,12 +64,8 @@ model Sentence {
   id          Int      @id @default(autoincrement())
   text        String
   translation String?
-=======
   
-  textbookId Int?
-  textbook   Textbook? @relation(fields: [textbookId], references: [id])
-
-  createdAt DateTime @default(now())
+  createdAt   DateTime @default(now())
 }
 
 model Homework {
@@ -104,6 +95,5 @@ model HomeworkRecord {
   score       Int?
   completedAt DateTime?
   
->>>>>>> 50bbfd0 (Initial commit: Complete LingoLab Application v1)
   createdAt   DateTime @default(now())
 }

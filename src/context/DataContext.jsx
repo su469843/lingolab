@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const DataContext = createContext();
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useData = () => useContext(DataContext);
 
 const API_BASE = '/api';
@@ -9,16 +10,12 @@ const API_BASE = '/api';
 export const DataProvider = ({ children }) => {
     const [words, setWords] = useState([]);
     const [sentences, setSentences] = useState([]);
-<<<<<<< HEAD
-    const [progress, setProgress] = useState({});
-=======
     const [progress, setProgress] = useState(() => {
         try {
             const saved = localStorage.getItem('app_progress');
             return saved ? JSON.parse(saved) : {};
-        } catch (e) { return {}; }
+        } catch { return {}; }
     });
->>>>>>> 50bbfd0 (Initial commit: Complete LingoLab Application v1)
     const [loading, setLoading] = useState(true);
 
     // Fetch words from API
@@ -63,15 +60,6 @@ export const DataProvider = ({ children }) => {
             setLoading(false);
         };
         loadData();
-<<<<<<< HEAD
-
-        // Load progress from localStorage (client-side only)
-        const savedProgress = localStorage.getItem('app_progress');
-        if (savedProgress) {
-            setProgress(JSON.parse(savedProgress));
-        }
-=======
->>>>>>> 50bbfd0 (Initial commit: Complete LingoLab Application v1)
     }, []);
 
     // Save progress to localStorage whenever it changes

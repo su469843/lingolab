@@ -10,7 +10,7 @@ const WordsPractice = ({ words }) => {
     const [quizType, setQuizType] = useState('meaning'); // 'meaning' or 'phonetic'
 
     // Initialize a new group of 5
-    const startNewGroup = () => {
+    const startNewGroup = React.useCallback(() => {
         if (!words || words.length === 0) return;
         const count = Math.min(5, words.length);
         const shuffled = [...words].sort(() => 0.5 - Math.random());
@@ -20,11 +20,14 @@ const WordsPractice = ({ words }) => {
         setCurrentQuestionIndex(0);
         setScore(0);
         setFeedback(null);
-    };
+    }, [words]);
 
     useEffect(() => {
-        startNewGroup();
-    }, [words]);
+        const timer = setTimeout(() => {
+            startNewGroup();
+        }, 0);
+        return () => clearTimeout(timer);
+    }, [startNewGroup]);
 
     const playSound = (text) => {
         const utterance = new SpeechSynthesisUtterance(text);

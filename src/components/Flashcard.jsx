@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Volume2, RotateCw } from 'lucide-react';
 
-const Flashcard = ({ word, onNext, onResult }) => {
+const Flashcard = ({ word, onResult }) => {
     const [isFlipped, setIsFlipped] = useState(false);
 
     const handleFlip = () => setIsFlipped(!isFlipped);

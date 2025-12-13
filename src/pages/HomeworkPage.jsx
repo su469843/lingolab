@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
+// import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { ClipboardList, CheckCircle, PlayCircle, Clock, ArrowRight } from 'lucide-react';
 import Flashcard from '../components/Flashcard';
 
 const HomeworkPage = () => {
-    const { user } = useAuth();
+    // const { user } = useAuth();
     const { words, sentences } = useData();
     const [records, setRecords] = useState([]);
 
@@ -13,10 +13,10 @@ const HomeworkPage = () => {
     const [activeRecord, setActiveRecord] = useState(null); // The homework record currently being studied
     const [studyItems, setStudyItems] = useState([]); // Array of actual Word/Sentence objects
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [isQuiz, setIsQuiz] = useState(false); // If true, in quiz phase
+    // const [isQuiz, setIsQuiz] = useState(false); // If true, in quiz phase
     // const [score, setScore] = useState(0); // Unused currently
 
-    const fetchRecords = async () => {
+    const fetchRecords = React.useCallback(async () => {
         try {
             const token = localStorage.getItem('token');
             const res = await fetch('/api/homework/student', { headers: { Authorization: `Bearer ${token}` } });
@@ -24,11 +24,13 @@ const HomeworkPage = () => {
                 setRecords(await res.json());
             }
         } catch (error) { console.error(error); }
-    };
+    }, []);
 
     useEffect(() => {
-        fetchRecords();
-    }, []);
+        (async () => {
+            await fetchRecords();
+        })();
+    }, [fetchRecords]);
 
     const startHomework = (record) => {
         const ids = JSON.parse(record.homework.contentIds);
@@ -47,9 +49,9 @@ const HomeworkPage = () => {
         setStudyItems(items);
         setActiveRecord(record);
         setCurrentIndex(0);
-        setIsQuiz(false);
+        // setIsQuiz(false);
         setCurrentIndex(0);
-        setIsQuiz(false);
+        // setIsQuiz(false);
         // setScore(0);
     };
 
@@ -81,7 +83,7 @@ const HomeworkPage = () => {
     if (activeRecord) {
         const currentItem = studyItems[currentIndex];
         const isWord = activeRecord.homework.type === 'WORD';
-        const progress = Math.round(((currentIndex + 1) / studyItems.length) * 100);
+        // const progress = Math.round(((currentIndex + 1) / studyItems.length) * 100);
 
         return (
             <div className="page-container" style={{ textAlign: 'center', maxWidth: '600px', margin: '0 auto' }}>

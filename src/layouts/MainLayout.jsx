@@ -1,31 +1,15 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-<<<<<<< HEAD
-import { BookOpen, Mic, GraduationCap, Settings, Home } from 'lucide-react';
-
-const MainLayout = () => {
-    const location = useLocation();
-=======
 import { BookOpen, Mic, GraduationCap, Settings, Home, LogOut, User as UserIcon, ClipboardList } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const MainLayout = () => {
     const location = useLocation();
     const { user, logout } = useAuth();
->>>>>>> 50bbfd0 (Initial commit: Complete LingoLab Application v1)
 
     const isActive = (path) => location.pathname === path;
 
     const navItems = [
-<<<<<<< HEAD
-        { path: '/', label: '首页', icon: Home },
-        { path: '/phonetics', label: '音标学习', icon: Mic },
-        { path: '/words', label: '单词学习', icon: BookOpen },
-        { path: '/sentences', label: '句子学习', icon: GraduationCap },
-        { path: '/teacher', label: '教师后台', icon: Settings },
-    ];
-
-=======
         { path: '/', label: '首页', icon: Home, roles: ['STUDENT', 'TEACHER', 'VISITOR'] },
         { path: '/phonetics', label: '音标学习', icon: Mic, roles: ['STUDENT', 'TEACHER', 'VISITOR'] },
         { path: '/words', label: '单词学习', icon: BookOpen, roles: ['STUDENT', 'TEACHER', 'VISITOR'] },
@@ -36,7 +20,6 @@ const MainLayout = () => {
 
     const filteredNav = navItems.filter(item => !item.roles || (user && item.roles.includes(user.role)));
 
->>>>>>> 50bbfd0 (Initial commit: Complete LingoLab Application v1)
     return (
         <div className="app-layout">
             {/* Sidebar */}
@@ -45,14 +28,9 @@ const MainLayout = () => {
                     <GraduationCap className="logo-icon" />
                     <h1 className="logo-text">LingoLab</h1>
                 </div>
-<<<<<<< HEAD
-                <nav className="sidebar-nav">
-                    {navItems.map((item) => {
-=======
 
                 <nav className="sidebar-nav">
                     {filteredNav.map((item) => {
->>>>>>> 50bbfd0 (Initial commit: Complete LingoLab Application v1)
                         const Icon = item.icon;
                         return (
                             <Link
@@ -66,8 +44,6 @@ const MainLayout = () => {
                         );
                     })}
                 </nav>
-<<<<<<< HEAD
-=======
 
                 {/* User Profile Footer */}
                 <div style={{ marginTop: 'auto', padding: '1rem', borderTop: '1px solid var(--border-color)' }}>
@@ -88,7 +64,6 @@ const MainLayout = () => {
                         <LogOut size={16} style={{ marginRight: '0.5rem' }} /> 退出登录
                     </button>
                 </div>
->>>>>>> 50bbfd0 (Initial commit: Complete LingoLab Application v1)
             </aside>
 
             {/* Main Content */}
