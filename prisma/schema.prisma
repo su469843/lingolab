@@ -33,6 +33,8 @@ model User {
   textbooks Textbook[]
 
   createdAt DateTime @default(now())
+
+  dailyStats DailyStat[]
 }
 
 model Textbook {
@@ -96,4 +98,16 @@ model HomeworkRecord {
   completedAt DateTime?
   
   createdAt   DateTime @default(now())
+}
+
+
+model DailyStat {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id])
+  date          String   // Format: YYYY-MM-DD
+  wordCount     Int      @default(0)
+  phoneticCount Int      @default(0)
+
+  @@unique([userId, date])
 }

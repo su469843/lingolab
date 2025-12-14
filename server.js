@@ -39,6 +39,12 @@ app.all('/api/textbooks', adapter(textbooksHandler));
 app.all('/api/textbooks/batch', adapter(textbookBatchHandler));
 app.all('/api/homework', adapter(homeworkHandler));
 
+// Stats & Leaderboard
+import statsRecordHandler from './api/stats/record.js';
+import leaderboardHandler from './api/stats/leaderboard.js';
+app.all('/api/stats/record', adapter(statsRecordHandler));
+app.all('/api/stats/leaderboard', adapter(leaderboardHandler));
+
 app.listen(port, () => {
     console.log(`Local API server running at http://localhost:${port}`);
 });

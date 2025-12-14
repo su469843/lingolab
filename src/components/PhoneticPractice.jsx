@@ -51,6 +51,19 @@ const PhoneticPractice = ({ items }) => {
         if (selectedItem.symbol === target.symbol) {
             setFeedback('correct');
             setScore(s => s + 1);
+
+            // Stats Update
+            try {
+                const token = localStorage.getItem('token');
+                if (token) {
+                    fetch('/api/stats/record', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                        body: JSON.stringify({ type: 'phonetic', count: 1 })
+                    });
+                }
+            } catch (e) { console.error('Stats error', e); }
+
         } else {
             setFeedback('incorrect');
         }
