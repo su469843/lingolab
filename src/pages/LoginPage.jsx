@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { User, Lock, ArrowRight } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { User, Lock, ArrowLeft, Loader2, Sparkles } from 'lucide-react';
 
 const LoginPage = () => {
     const { login, register } = useAuth();
@@ -43,7 +43,8 @@ const LoginPage = () => {
                     orgCode: formData.orgCode
                 });
             }
-            navigate('/');
+            // Navigate is handled by IndexRoute usually, but explicit nav is safe
+            navigate('/home');
         } catch (err) {
             setError(err.message);
         } finally {
@@ -52,47 +53,59 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="page-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
-            <div className="card" style={{ width: '100%', maxWidth: '400px', padding: '2rem' }}>
-                <h2 style={{ textAlign: 'center', marginBottom: '2rem', color: 'var(--primary-color)' }}>
-                    {isLogin ? '欢迎登录' : '注册账号'}
-                </h2>
+        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--surface-50)', position: 'relative', overflow: 'hidden' }}>
+            {/* Background Decoration */}
+            <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '500px', height: '500px', background: 'var(--primary-200)', filter: 'blur(120px)', opacity: 0.4, borderRadius: '50%', zIndex: 0 }}></div>
+            <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '600px', height: '600px', background: 'var(--secondary-500)', filter: 'blur(120px)', opacity: 0.2, borderRadius: '50%', zIndex: 0 }}></div>
+
+            <div className="card animate-scale-up" style={{ width: '100%', maxWidth: '440px', padding: '2.5rem', position: 'relative', zIndex: 1, backdropFilter: 'blur(20px)', background: 'rgba(255,255,255,0.85)' }}>
+                <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-light)', fontSize: '0.9rem', marginBottom: '1.5rem', cursor: 'pointer' }}>
+                    <ArrowLeft size={16} /> 返回首页
+                </Link>
+
+                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 48, height: 48, borderRadius: '12px', background: 'var(--primary-50)', color: 'var(--primary-600)', marginBottom: '1rem' }}>
+                        <Sparkles size={24} />
+                    </div>
+                    <h2 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>{isLogin ? '欢迎回来' : '创建新账号'}</h2>
+                    <p>{isLogin ? '登录以继续您的学习之旅' : '开始您的英语掌握之路'}</p>
+                </div>
 
                 {error && (
-                    <div style={{ background: '#fee2e2', color: '#b91c1c', padding: '0.75rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-                        {error}
+                    <div style={{ background: '#fee2e2', color: '#b91c1c', padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span>⚠️</span> {error}
                     </div>
                 )}
 
                 <form onSubmit={handleSubmit}>
-                    <div className="form-group" style={{ marginBottom: '1rem' }}>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>用户名</label>
+                    <div style={{ marginBottom: '1rem' }}>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.9rem' }}>账户名</label>
                         <div style={{ position: 'relative' }}>
-                            <User size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} />
+                            <User size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} />
                             <input
                                 type="text"
                                 name="username"
                                 value={formData.username}
                                 onChange={handleChange}
                                 className="input-field"
-                                style={{ width: '100%', paddingLeft: '2.5rem' }}
+                                style={{ paddingLeft: '3rem' }}
                                 placeholder="请输入用户名"
                                 required
                             />
                         </div>
                     </div>
 
-                    <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>密码</label>
+                    <div style={{ marginBottom: '1.5rem' }}>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.9rem' }}>密码</label>
                         <div style={{ position: 'relative' }}>
-                            <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} />
+                            <Lock size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} />
                             <input
                                 type="password"
                                 name="password"
                                 value={formData.password}
                                 onChange={handleChange}
                                 className="input-field"
-                                style={{ width: '100%', paddingLeft: '2.5rem' }}
+                                style={{ paddingLeft: '3rem' }}
                                 placeholder="请输入密码"
                                 required
                             />
@@ -100,9 +113,9 @@ const LoginPage = () => {
                     </div>
 
                     {!isLogin && (
-                        <>
-                            <div className="form-group" style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>昵称</label>
+                        <div className="animate-fade-in">
+                            <div style={{ marginBottom: '1rem' }}>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.9rem' }}>昵称 (用于显示)</label>
                                 <input
                                     type="text"
                                     name="name"
@@ -113,69 +126,73 @@ const LoginPage = () => {
                                 />
                             </div>
 
-                            <div className="form-group" style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>角色</label>
+                            <div style={{ marginBottom: '1rem' }}>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.9rem' }}>我是...</label>
                                 <select
                                     name="role"
                                     value={formData.role}
                                     onChange={handleChange}
                                     className="input-field"
-                                    style={{ width: '100%' }}
+                                    style={{ width: '100%', cursor: 'pointer' }}
                                 >
-                                    <option value="STUDENT">学生</option>
-                                    <option value="TEACHER">老师</option>
+                                    <option value="STUDENT">学生 (需要自学或加入班级)</option>
+                                    <option value="TEACHER">老师 (创建班级和管理学生)</option>
                                 </select>
                             </div>
 
                             {formData.role === 'TEACHER' && (
-                                <div className="form-group" style={{ marginBottom: '1rem' }}>
-                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>机构校验码 (Org Code)</label>
+                                <div className="animate-fade-in" style={{ marginBottom: '1rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.9rem' }}>机构校验码</label>
                                     <input
                                         type="text"
                                         name="orgCode"
                                         value={formData.orgCode}
                                         onChange={handleChange}
                                         className="input-field"
-                                        placeholder="请输入机构提供的一致校验码"
+                                        placeholder="请输入机构提供的校验码"
                                         required
                                     />
                                 </div>
                             )}
 
                             {formData.role === 'STUDENT' && (
-                                <div className="form-group" style={{ marginBottom: '1rem' }}>
-                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>老师代码 (Teacher Code)</label>
+                                <div className="animate-fade-in" style={{ marginBottom: '1rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.9rem' }}>老师代码 (选填)</label>
                                     <input
                                         type="text"
                                         name="teacherCode"
                                         value={formData.teacherCode}
                                         onChange={handleChange}
                                         className="input-field"
-                                        placeholder="输入老师的5位代码以绑定 (选填)"
+                                        placeholder="输入老师的5位代码以绑定"
                                     />
                                 </div>
                             )}
-                        </>
+                        </div>
                     )}
 
                     <button
                         type="submit"
                         className="btn btn-primary"
-                        style={{ width: '100%', justifyContent: 'center' }}
+                        style={{ width: '100%', justifyContent: 'center', marginTop: '0.5rem', height: '3rem' }}
                         disabled={loading}
                     >
-                        {loading ? '处理中...' : (isLogin ? '立即登录' : '创建账号')}
+                        {loading ? <Loader2 className="animate-spin" size={20} /> : (isLogin ? '登录' : '注册')}
                     </button>
                 </form>
 
-                <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.9rem' }}>
+                <div style={{ marginTop: '2rem', textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
                     {isLogin ? '还没有账号？' : '已有账号？'}
-                    <span
-                        onClick={() => setIsLogin(!isLogin)}
-                        style={{ color: 'var(--primary-color)', cursor: 'pointer', fontWeight: 600, marginLeft: '0.5rem' }}
+                    <button
+                        onClick={() => {
+                            setIsLogin(!isLogin);
+                            setError('');
+                        }}
+                        className="btn-ghost"
+                        style={{ marginLeft: '0.5rem', color: 'var(--primary-600)', fontWeight: 600, padding: '0.25rem 0.5rem' }}
                     >
-                        {isLogin ? '去注册' : '去登录'}
-                    </span>
+                        {isLogin ? '免费注册' : '直接登录'}
+                    </button>
                 </div>
             </div>
         </div>

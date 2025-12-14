@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { BookOpen, Mic, GraduationCap, Settings, Home, LogOut, User as UserIcon, ClipboardList } from 'lucide-react';
+import { BookOpen, Mic, GraduationCap, Settings, Home, LogOut, User as UserIcon, ClipboardList, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const MainLayout = () => {
@@ -15,7 +15,8 @@ const MainLayout = () => {
         { path: '/words', label: '单词学习', icon: BookOpen, roles: ['STUDENT', 'TEACHER', 'VISITOR'] },
         { path: '/sentences', label: '句子学习', icon: GraduationCap, roles: ['STUDENT', 'TEACHER', 'VISITOR'] },
         { path: '/homework', label: '作业中心', icon: ClipboardList, roles: ['STUDENT'] },
-        { path: '/teacher', label: '教师后台', icon: Settings, roles: ['TEACHER'] },
+        { path: '/teacher', label: '教师后台', icon: LayoutDashboard, roles: ['TEACHER'] },
+        { path: '/settings', label: '设置', icon: Settings, roles: ['STUDENT', 'TEACHER', 'VISITOR'] },
     ];
 
     const filteredNav = navItems.filter(item => !item.roles || (user && item.roles.includes(user.role)));

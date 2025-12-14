@@ -1,113 +1,122 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Volume2, BookOpen, MessageSquare, Sparkles, ArrowRight, CheckCircle } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useData } from '../context/DataContext';
+import { BookOpen, Mic, GraduationCap, TrendingUp, Calendar, ArrowRight, PlayCircle, Star } from 'lucide-react';
 
 const HomePage = () => {
+    const { user } = useAuth();
+    const { words, sentences } = useData();
+
+    // Mock progress calculation
+    const wordsMastered = words.filter(w => w.status === 'MASTERED').length; // Assuming status field exists or will exist
+    const totalWords = words.length;
+    const progressPercentage = totalWords > 0 ? Math.round((wordsMastered / totalWords) * 100) : 0;
+
     return (
-        <div className="home-page">
-            {/* Hero Section with Gradient Background */}
-            <section className="hero-section">
-                <div className="hero-content">
-                    <div className="hero-badge">
-                        <Sparkles size={16} />
-                        <span>AI 驱动的英语学习平台</span>
-                    </div>
-                    <h1 className="hero-title">
-                        欢迎来到 <span className="gradient-text">LingoLab</span>
-                    </h1>
-                    <p className="hero-subtitle">
-                        您的私人英语学习助手 · 掌握音标、单词与句子的最佳伴侣
-                    </p>
-                    <div className="hero-actions">
-                        <Link to="/phonetics" className="btn btn-primary btn-large">
-                            <Volume2 size={20} />
-                            开始学习音标
-                            <ArrowRight size={20} />
-                        </Link>
-                        <Link to="/words" className="btn btn-secondary btn-large">
-                            <BookOpen size={20} />
-                            背单词
-                        </Link>
-                    </div>
-                </div>
-                <div className="hero-decoration">
-                    <div className="floating-card card-1">
-                        <Volume2 size={32} />
-                    </div>
-                    <div className="floating-card card-2">
-                        <BookOpen size={32} />
-                    </div>
-                    <div className="floating-card card-3">
-                        <MessageSquare size={32} />
-                    </div>
-                </div>
-            </section>
+        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+            {/* Header Section */}
+            <header className="animate-fade-in" style={{ marginBottom: '3rem' }}>
+                <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>
+                    Welcome back, <span className="text-gradient">{user?.name || user?.username || 'Learner'}</span>!
+                </h1>
+                <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)' }}>
+                    准备好开始今天的学习了吗？坚持就是胜利。
+                </p>
+            </header>
 
-            {/* Features Grid */}
-            <section className="features-section">
-                <h2 className="section-title">核心功能</h2>
-                <div className="features-grid">
-                    <div className="feature-card">
-                        <div className="feature-icon">
-                            <Volume2 size={32} />
-                        </div>
-                        <h3>音标学习</h3>
-                        <p>掌握 48 个国际音标的标准发音，打好英语基础</p>
-                        <ul className="feature-list">
-                            <li><CheckCircle size={16} /> 标准发音示范</li>
-                            <li><CheckCircle size={16} /> 互动练习模式</li>
-                            <li><CheckCircle size={16} /> 实时语音反馈</li>
-                        </ul>
+            {/* Quick Stats Row */}
+            <div className="animate-slide-up" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
+                <div className="card" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div style={{ padding: '1rem', background: 'var(--primary-50)', borderRadius: '1rem', color: 'var(--primary-600)' }}>
+                        <BookOpen size={24} />
                     </div>
-                    <div className="feature-card featured">
-                        <div className="feature-badge">推荐</div>
-                        <div className="feature-icon">
-                            <BookOpen size={32} />
-                        </div>
-                        <h3>单词记忆</h3>
-                        <p>基于艾宾浩斯遗忘曲线的科学复习系统</p>
-                        <ul className="feature-list">
-                            <li><CheckCircle size={16} /> 智能复习提醒</li>
-                            <li><CheckCircle size={16} /> 个性化学习计划</li>
-                            <li><CheckCircle size={16} /> 进度追踪分析</li>
-                        </ul>
-                    </div>
-                    <div className="feature-card">
-                        <div className="feature-icon">
-                            <MessageSquare size={32} />
-                        </div>
-                        <h3>句子练习</h3>
-                        <p>通过真实语境提升英语表达能力</p>
-                        <ul className="feature-list">
-                            <li><CheckCircle size={16} /> 实用句型库</li>
-                            <li><CheckCircle size={16} /> 情景对话练习</li>
-                            <li><CheckCircle size={16} /> 发音纠正</li>
-                        </ul>
+                    <div>
+                        <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1 }}>{totalWords}</div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>已收录单词</div>
                     </div>
                 </div>
-            </section>
 
-            {/* Stats Section */}
-            <section className="stats-section">
-                <div className="stats-grid">
-                    <div className="stat-card">
-                        <div className="stat-number">48</div>
-                        <div className="stat-label">国际音标</div>
+                <div className="card" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div style={{ padding: '1rem', background: 'var(--secondary-50)', borderRadius: '1rem', color: 'var(--secondary-500)' }}>
+                        <TrendingUp size={24} />
                     </div>
-                    <div className="stat-card">
-                        <div className="stat-number">1000+</div>
-                        <div className="stat-label">常用单词</div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-number">500+</div>
-                        <div className="stat-label">实用句子</div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-number">24/7</div>
-                        <div className="stat-label">随时学习</div>
+                    <div>
+                        <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1 }}>{progressPercentage}%</div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>总体掌握度</div>
                     </div>
                 </div>
-            </section>
+
+                <div className="card" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div style={{ padding: '1rem', background: '#ecfccb', borderRadius: '1rem', color: '#65a30d' }}>
+                        <Calendar size={24} />
+                    </div>
+                    <div>
+                        <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1 }}>{sentences.length}</div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>累计句子</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Main Actions */}
+            <h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem' }}>开始学习</h2>
+            <div className="animate-slide-up" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', animationDelay: '0.1s' }}>
+
+                {/* Phonetics Card */}
+                <Link to="/phonetics" className="card hover-scale" style={{ textDecoration: 'none', color: 'inherit', padding: '0', overflow: 'hidden', border: 'none', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ padding: '2rem', background: 'linear-gradient(135deg, #6366f1 0%, #818cf8 100%)', color: 'white' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                            <div style={{ background: 'rgba(255,255,255,0.2)', padding: '0.5rem', borderRadius: '0.5rem' }}>
+                                <Mic size={24} color="white" />
+                            </div>
+                            <span style={{ fontSize: '0.8rem', fontWeight: 600, background: 'rgba(0,0,0,0.2)', padding: '0.25rem 0.75rem', borderRadius: '99px' }}>基础</span>
+                        </div>
+                        <h3 style={{ color: 'white', marginBottom: '0.5rem' }}>音标学习</h3>
+                        <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', margin: 0 }}>掌握 48 个国际音标的标准发音</p>
+                    </div>
+                    <div style={{ padding: '1.5rem', background: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontWeight: 600, color: 'var(--primary-600)' }}>立即开始</span>
+                        <ArrowRight size={20} color="var(--primary-600)" />
+                    </div>
+                </Link>
+
+                {/* Words Card */}
+                <Link to="/words" className="card hover-scale" style={{ textDecoration: 'none', color: 'inherit', padding: '0', overflow: 'hidden', border: 'none', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ padding: '2rem', background: 'linear-gradient(135deg, #ec4899 0%, #f472b6 100%)', color: 'white' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                            <div style={{ background: 'rgba(255,255,255,0.2)', padding: '0.5rem', borderRadius: '0.5rem' }}>
+                                <BookOpen size={24} color="white" />
+                            </div>
+                            <span style={{ fontSize: '0.8rem', fontWeight: 600, background: 'rgba(0,0,0,0.2)', padding: '0.25rem 0.75rem', borderRadius: '99px' }}>核心</span>
+                        </div>
+                        <h3 style={{ color: 'white', marginBottom: '0.5rem' }}>单词记忆</h3>
+                        <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', margin: 0 }}>通过科学的记忆曲线高效背词</p>
+                    </div>
+                    <div style={{ padding: '1.5rem', background: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontWeight: 600, color: '#ec4899' }}>继续学习</span>
+                        <ArrowRight size={20} color="#ec4899" />
+                    </div>
+                </Link>
+
+                {/* Sentences Card */}
+                <Link to="/sentences" className="card hover-scale" style={{ textDecoration: 'none', color: 'inherit', padding: '0', overflow: 'hidden', border: 'none', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ padding: '2rem', background: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)', color: 'white' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                            <div style={{ background: 'rgba(255,255,255,0.2)', padding: '0.5rem', borderRadius: '0.5rem' }}>
+                                <GraduationCap size={24} color="white" />
+                            </div>
+                            <span style={{ fontSize: '0.8rem', fontWeight: 600, background: 'rgba(0,0,0,0.2)', padding: '0.25rem 0.75rem', borderRadius: '99px' }}>进阶</span>
+                        </div>
+                        <h3 style={{ color: 'white', marginBottom: '0.5rem' }}>句子练习</h3>
+                        <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', margin: 0 }}>在真实语境中提升表达能力</p>
+                    </div>
+                    <div style={{ padding: '1.5rem', background: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontWeight: 600, color: '#10b981' }}>开始练习</span>
+                        <ArrowRight size={20} color="#10b981" />
+                    </div>
+                </Link>
+
+            </div>
         </div>
     );
 };

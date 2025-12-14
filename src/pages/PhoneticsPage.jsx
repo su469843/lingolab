@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Volume2, BookOpen, GraduationCap } from 'lucide-react';
+import { Volume2, BookOpen, GraduationCap, ChevronRight } from 'lucide-react';
 import PhoneticPractice from '../components/PhoneticPractice';
 
 const vowels = [
@@ -65,34 +65,59 @@ const PhoneticsPage = () => {
     const allItems = [...vowels, ...consonants];
 
     return (
-        <div className="page-container">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                <h2 className="page-title">国际音标 (IPA)</h2>
-                <div style={{ display: 'flex', gap: '1rem' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+            <div className="flex-center" style={{ justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                    <h1 style={{ fontSize: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <div style={{ padding: '0.5rem', background: 'var(--primary-100)', borderRadius: '12px', color: 'var(--primary-600)' }}><Volume2 size={28} /></div>
+                        国际音标 (IPA)
+                    </h1>
+                    <p style={{ marginTop: '0.5rem', color: 'var(--text-secondary)' }}>
+                        {isPractice ? '听音辨别练习模式' : '点击卡片听发音，掌握标准口语'}
+                    </p>
+                </div>
+
+                <div style={{ display: 'flex', background: 'var(--surface-100)', padding: '0.25rem', borderRadius: 'var(--radius-lg)' }}>
                     <button
-                        className={`btn ${!isPractice ? 'btn-primary' : 'btn-secondary'}`}
+                        className="btn"
+                        style={{
+                            background: !isPractice ? 'white' : 'transparent',
+                            boxShadow: !isPractice ? 'var(--shadow-sm)' : 'none',
+                            color: !isPractice ? 'var(--primary-600)' : 'var(--text-muted)',
+                            padding: '0.5rem 1.5rem',
+                            fontSize: '0.9rem'
+                        }}
                         onClick={() => setIsPractice(false)}
                     >
-                        <BookOpen size={18} style={{ marginRight: '0.5rem', verticalAlign: 'text-bottom' }} />
-                        音标表
+                        <BookOpen size={16} /> 学习表
                     </button>
                     <button
-                        className={`btn ${isPractice ? 'btn-primary' : 'btn-secondary'}`}
+                        className="btn"
+                        style={{
+                            background: isPractice ? 'white' : 'transparent',
+                            boxShadow: isPractice ? 'var(--shadow-sm)' : 'none',
+                            color: isPractice ? 'var(--primary-600)' : 'var(--text-muted)',
+                            padding: '0.5rem 1.5rem',
+                            fontSize: '0.9rem'
+                        }}
                         onClick={() => setIsPractice(true)}
                     >
-                        <GraduationCap size={18} style={{ marginRight: '0.5rem', verticalAlign: 'text-bottom' }} />
-                        听音练习
+                        <GraduationCap size={16} /> 练习模式
                     </button>
                 </div>
             </div>
 
             {isPractice ? (
-                <PhoneticPractice items={allItems} />
+                <div className="animate-fade-in">
+                    <PhoneticPractice items={allItems} />
+                </div>
             ) : (
-                <>
-                    <p style={{ marginBottom: '2rem', color: 'var(--text-medium)' }}>点击卡片听发音 (通过朗读例词演示)</p>
-                    <section className="dashboard-section" style={{ marginBottom: '3rem' }}>
-                        <h3 style={{ marginBottom: '1rem', fontSize: '1.5rem', color: 'var(--primary-color)' }}>元音 (Vowels)</h3>
+                <div className="animate-slide-up">
+                    <section style={{ marginBottom: '3rem' }}>
+                        <div className="flex-center" style={{ justifyContent: 'flex-start', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                            <h2 style={{ fontSize: '1.5rem' }}>元音 (Vowels)</h2>
+                            <span style={{ background: 'var(--primary-100)', color: 'var(--primary-700)', padding: '0.25rem 0.75rem', borderRadius: '99px', fontSize: '0.8rem', fontWeight: 600 }}>{vowels.length}</span>
+                        </div>
                         <div style={gridStyle}>
                             {vowels.map((item) => (
                                 <PhoneticCard key={item.symbol} item={item} onPlay={playSound} />
@@ -100,15 +125,18 @@ const PhoneticsPage = () => {
                         </div>
                     </section>
 
-                    <section className="dashboard-section">
-                        <h3 style={{ marginBottom: '1rem', fontSize: '1.5rem', color: 'var(--primary-color)' }}>辅音 (Consonants)</h3>
+                    <section>
+                        <div className="flex-center" style={{ justifyContent: 'flex-start', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                            <h2 style={{ fontSize: '1.5rem' }}>辅音 (Consonants)</h2>
+                            <span style={{ background: 'var(--secondary-50)', color: 'var(--secondary-500)', padding: '0.25rem 0.75rem', borderRadius: '99px', fontSize: '0.8rem', fontWeight: 600 }}>{consonants.length}</span>
+                        </div>
                         <div style={gridStyle}>
                             {consonants.map((item) => (
                                 <PhoneticCard key={item.symbol} item={item} onPlay={playSound} />
                             ))}
                         </div>
                     </section>
-                </>
+                </div>
             )}
         </div>
     );
@@ -120,35 +148,38 @@ const PhoneticCard = ({ item, onPlay }) => (
         style={cardStyle}
         onClick={() => onPlay(item.symbol, item.examples)}
     >
-        <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--primary-color)', marginBottom: '0.5rem' }}>
-            [{item.symbol}]
+        <div style={{ fontSize: '2.25rem', fontFamily: 'serif', fontWeight: 600, color: 'var(--primary-600)', marginBottom: '0.5rem' }}>
+            {item.symbol}
         </div>
-        <div style={{ color: 'var(--text-medium)', fontSize: '0.9rem' }}>
+        <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
             {item.examples}
         </div>
-        <Volume2 size={16} style={{ position: 'absolute', top: '10px', right: '10px', color: 'var(--text-light)' }} />
+        <div className="icon-play" style={{ position: 'absolute', top: '10px', right: '10px', opacity: 0.3, transition: '0.2s' }}>
+            <Volume2 size={16} />
+        </div>
     </div>
 );
 
 const gridStyle = {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-    gap: '1rem',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
+    gap: '1.25rem',
 };
 
 const cardStyle = {
     background: 'white',
-    padding: '1.5rem',
-    borderRadius: 'var(--radius-lg)',
+    padding: '1.5rem 1rem',
+    borderRadius: '1rem',
     boxShadow: 'var(--shadow-sm)',
-    border: '1px solid var(--border-color)',
+    border: '1px solid var(--surface-100)',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     cursor: 'pointer',
     position: 'relative',
-    transition: 'transform 0.1s, box-shadow 0.1s',
+    transition: 'all 0.2s ease',
+    textAlign: 'center'
 };
 
 export default PhoneticsPage;
