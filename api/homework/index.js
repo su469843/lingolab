@@ -17,23 +17,31 @@ export default async function handler(req, res) {
         const payload = verifyToken(token);
         if (!payload) return res.status(401).json({ error: 'Invalid token' });
 
-        const user = await prisma.user.findUnique({ where: { id: payload.userId } });
-        if (!user || user.role !== 'TEACHER') {
-            return res.status(403).json({ error: 'Only teachers can access this' });
-        }
-
-        // GET: Fetch homeworks created by teacher
+        // GET Logic
         if (req.method === 'GET') {
-            const homeworks = await prisma.homework.findMany({
-                where: { teacherId: user.id },
-                include: {
-                    records: {
-                        include: { student: { select: { name: true, username: true } } }
-                    }
-                },
-                orderBy: { createdAt: 'desc' }
-            });
-            return res.status(200).json(homeworks);
+            if (user.role === 'TEACHER') {
+                const homeworks = await prisma.homework.findMany({
+                    where: { teacherId: user.id },
+                    include: {
+                        records: {
+                            include: { student: { select: { name: true, username: true } } }
+                        }
+                    },
+                    orderBy: { createdAt: 'desc' }
+                });
+                return res.status(200).json(homeworks);
+            } else {
+                // STUDENT: Fetch assigned homework records
+                // We want to see the Homework details + the user's specific record status
+                const records = await prisma.homeworkRecord.findMany({
+                    where: { studentId: user.id },
+                    include: {
+                        homework: true // Include the homework details (title, type, content)
+                    },
+                    orderBy: { createdAt: 'desc' }
+                });
+                return res.status(200).json(records);
+            }
         }
 
         // POST: Create new homework

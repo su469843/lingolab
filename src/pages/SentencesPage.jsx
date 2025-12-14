@@ -2,17 +2,16 @@ import React, { useState } from 'react';
 import { useData } from '../context/DataContext';
 import { Volume2, PlayCircle, MessageSquare } from 'lucide-react';
 import AudioRecorder from '../components/AudioRecorder';
+import { playTTS } from '../lib/tts';
 
 const SentencesPage = () => {
     const { sentences } = useData();
     const [playingId, setPlayingId] = useState(null);
 
-    const playSentence = (text, id) => {
+    const playSentence = async (text, id) => {
         setPlayingId(id);
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'en-US';
-        utterance.onend = () => setPlayingId(null);
-        window.speechSynthesis.speak(utterance);
+        await playTTS(text);
+        setPlayingId(null);
     };
 
     return (

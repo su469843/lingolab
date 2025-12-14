@@ -389,8 +389,93 @@ const TeacherPage = () => {
                     </div>
                 )}
 
-                {/* Simplified Helpers for other tabs */}
-                {activeTab === 'homework' && <div className="card" style={{ padding: '2rem' }}>作业管理功能开发中...</div>}
+                {activeTab === 'homework' && (
+                    <div className="animate-fade-in">
+                        <div className="card" style={{ padding: '2rem', marginBottom: '2rem' }}>
+                            <h3 style={{ marginBottom: '1.5rem', fontSize: '1.5rem' }}>发布新作业</h3>
+                            <form onSubmit={handleCreateHomework}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                                    <input
+                                        type="text"
+                                        placeholder="作业标题 (例如: Unit 1 单词测试)"
+                                        className="input-field"
+                                        value={newHomework.title}
+                                        onChange={e => setNewHomework({ ...newHomework, title: e.target.value })}
+                                        required
+                                    />
+                                    <input
+                                        type="date"
+                                        className="input-field"
+                                        value={newHomework.deadline}
+                                        onChange={e => setNewHomework({ ...newHomework, deadline: e.target.value })}
+                                    />
+                                </div>
+
+                                <div style={{ marginBottom: '1rem', maxHeight: '300px', overflowY: 'auto', border: '1px solid var(--surface-200)', borderRadius: '8px', padding: '1rem' }}>
+                                    <p style={{ marginBottom: '0.5rem', fontWeight: 600 }}>选择单词内容 ({selectedItems.length})</p>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.5rem' }}>
+                                        {words.map(word => (
+                                            <div
+                                                key={word.id}
+                                                onClick={() => toggleSelection(word.id)}
+                                                style={{
+                                                    padding: '0.5rem',
+                                                    border: selectedItems.includes(word.id) ? '2px solid var(--primary-500)' : '1px solid var(--surface-200)',
+                                                    background: selectedItems.includes(word.id) ? 'var(--primary-50)' : 'white',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.9rem'
+                                                }}
+                                            >
+                                                <div style={{ fontWeight: 'bold' }}>{word.word}</div>
+                                                <div style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>{word.meaning}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <button type="submit" className="btn btn-primary" disabled={selectedItems.length === 0}>
+                                    <Plus size={18} /> 发布作业
+                                </button>
+                            </form>
+                        </div>
+
+                        <div style={{ display: 'grid', gap: '1rem' }}>
+                            <h3 style={{ fontSize: '1.25rem', marginTop: '1rem' }}>已发布的作业</h3>
+                            {homeworks.map(hw => (
+                                <div key={hw.id} className="card" style={{ padding: '1.5rem' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                                        <div>
+                                            <h4 style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{hw.title}</h4>
+                                            <p style={{ fontSize: '0.85rem', color: 'var(--text-light)' }}>
+                                                截止: {hw.deadline ? new Date(hw.deadline).toLocaleDateString() : '无期限'} |
+                                                完成度: {hw.records.filter(r => r.status === 'COMPLETED').length} / {hw.records.length} 人
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ marginTop: '1rem', borderTop: '1px solid var(--surface-100)', paddingTop: '1rem' }}>
+                                        <p style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.5rem' }}>学生完成情况</p>
+                                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                            {hw.records.map(record => (
+                                                <span key={record.id} style={{
+                                                    fontSize: '0.8rem',
+                                                    padding: '0.2rem 0.6rem',
+                                                    borderRadius: '99px',
+                                                    background: record.status === 'COMPLETED' ? '#dcfce7' : '#f1f5f9',
+                                                    color: record.status === 'COMPLETED' ? '#166534' : '#64748b',
+                                                    border: '1px solid transparent'
+                                                }}>
+                                                    {record.student.name}: {record.status === 'COMPLETED' ? `${record.score}分` : '未完成'}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
                 {activeTab === 'students' && (
                     <div className="animate-fade-in">
                         <div className="card" style={{ padding: '2rem', marginBottom: '2rem' }}>

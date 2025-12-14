@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Volume2, RefreshCw, CheckCircle2, XCircle, ArrowRight, Play, Trophy } from 'lucide-react';
 
+import { playTTS } from '../lib/tts';
+
 const PhoneticPractice = ({ items }) => {
     const [stage, setStage] = useState('intro'); // intro, quiz, result
     const [group, setGroup] = useState([]);
@@ -32,9 +34,7 @@ const PhoneticPractice = ({ items }) => {
 
     const playSound = (symbol, examples) => {
         const exampleWord = examples.split(',')[0];
-        const utterance = new SpeechSynthesisUtterance(exampleWord);
-        utterance.lang = 'en-US';
-        window.speechSynthesis.speak(utterance);
+        playTTS(exampleWord);
     };
 
     const startQuiz = () => {

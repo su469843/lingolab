@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Volume2, RotateCw } from 'lucide-react';
+import { playTTS } from '../lib/tts';
 
 const Flashcard = ({ word, onResult }) => {
     const [isFlipped, setIsFlipped] = useState(false);
@@ -8,9 +9,7 @@ const Flashcard = ({ word, onResult }) => {
 
     const handlePlayAudio = (e) => {
         e.stopPropagation();
-        const utterance = new SpeechSynthesisUtterance(word.word);
-        utterance.lang = 'en-US';
-        window.speechSynthesis.speak(utterance);
+        playTTS(word.word);
     };
 
     return (

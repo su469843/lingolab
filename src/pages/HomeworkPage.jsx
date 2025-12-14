@@ -1,165 +1,189 @@
-import React, { useState, useEffect } from 'react';
-// import { useAuth } from '../context/AuthContext';
-import { useData } from '../context/DataContext';
-import { ClipboardList, CheckCircle, PlayCircle, Clock, ArrowRight } from 'lucide-react';
-import Flashcard from '../components/Flashcard';
+import React, { useEffect, useState } from 'react';
+import { ClipboardList, CheckCircle, Clock, PlayCircle } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import WordsPractice from '../components/WordsPractice'; // Reusing practice component logic if possible, or build simple version
 
 const HomeworkPage = () => {
-    // const { user } = useAuth();
-    const { words, sentences } = useData();
-    const [records, setRecords] = useState([]);
+    const { user } = useAuth();
+    const [assignments, setAssignments] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [activeHomework, setActiveHomework] = useState(null); // The homework currently being done
 
-    // Study Mode State
-    const [activeRecord, setActiveRecord] = useState(null); // The homework record currently being studied
-    const [studyItems, setStudyItems] = useState([]); // Array of actual Word/Sentence objects
-    const [currentIndex, setCurrentIndex] = useState(0);
-    // const [isQuiz, setIsQuiz] = useState(false); // If true, in quiz phase
-    // const [score, setScore] = useState(0); // Unused currently
-
-    const fetchRecords = React.useCallback(async () => {
+    const fetchAssignments = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('/api/homework/student', { headers: { Authorization: `Bearer ${token}` } });
+            const res = await fetch('/api/homework', { headers: { Authorization: `Bearer ${token}` } });
             if (res.ok) {
-                setRecords(await res.json());
+                setAssignments(await res.json());
             }
-        } catch (error) { console.error(error); }
-    }, []);
+        } catch (error) { console.error(error); } finally { setLoading(false); }
+    };
 
     useEffect(() => {
-        (async () => {
-            await fetchRecords();
-        })();
-    }, [fetchRecords]);
+        fetchAssignments();
+    }, []);
 
-    const startHomework = (record) => {
-        const ids = JSON.parse(record.homework.contentIds);
-        let items = [];
-        if (record.homework.type === 'WORD') {
-            items = words.filter(w => ids.includes(w.id));
-        } else {
-            items = sentences.filter(s => ids.includes(s.id));
-        }
-
-        if (items.length === 0) {
-            alert('找不到作业内容 (可能已被删除)');
-            return;
-        }
-
-        setStudyItems(items);
-        setActiveRecord(record);
-        setCurrentIndex(0);
-        // setIsQuiz(false);
-        setCurrentIndex(0);
-        // setIsQuiz(false);
-        // setScore(0);
-    };
-
-    const handleNext = () => {
-        if (currentIndex < studyItems.length - 1) {
-            setCurrentIndex(prev => prev + 1);
-        } else {
-            // Finished learning, start quiz or just submit if simple
-            // For now, let's just complete it after viewing all
-            submitHomework(100);
-        }
-    };
-
-    const submitHomework = async (finalScore) => {
+    const handleComplete = async (score) => {
+        if (!activeHomework) return;
         try {
             const token = localStorage.getItem('token');
             await fetch('/api/homework/submit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ recordId: activeRecord.id, score: finalScore })
+                body: JSON.stringify({ recordId: activeHomework.id, score })
             });
-            alert('作业已提交!');
-            setActiveRecord(null);
-            fetchRecords();
-        } catch (error) { console.error(error); }
+            alert('作业已提交！');
+            setActiveHomework(null);
+            fetchAssignments(); // Refresh
+        } catch (error) {
+            console.error(error);
+            alert('提交失败');
+        }
     };
 
-    // RENDER: Study Mode
-    if (activeRecord) {
-        const currentItem = studyItems[currentIndex];
-        const isWord = activeRecord.homework.type === 'WORD';
-        // const progress = Math.round(((currentIndex + 1) / studyItems.length) * 100);
+    // simplified practice wrapper
+    const HomeworkPractice = ({ homework, onComplete }) => {
+        const [items, setItems] = useState([]);
+        const [currentIndex, setCurrentIndex] = useState(0);
+        const [score, setScore] = useState(0);
+        const [showResult, setShowResult] = useState(false);
+        const [userInput, setUserInput] = useState('');
+        const [feedback, setFeedback] = useState(null);
 
-        return (
-            <div className="page-container" style={{ textAlign: 'center', maxWidth: '600px', margin: '0 auto' }}>
-                <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <button onClick={() => setActiveRecord(null)} className="btn btn-secondary">退出</button>
-                    <div>正在做: {activeRecord.homework.title} ({currentIndex + 1}/{studyItems.length})</div>
-                </div>
+        useEffect(() => {
+            // Need to fetch the actual content details (words) based on IDs
+            // For now, assume we fetch all words and filter. In production, need specific endpoint.
+            const loadContent = async () => {
+                const ids = JSON.parse(homework.homework.contentIds);
+                const res = await fetch('/api/words'); // Ideally optimize this
+                const allWords = await res.json();
+                const homeworkWords = allWords.filter(w => ids.includes(w.id));
+                // Shuffle
+                setItems(homeworkWords.sort(() => 0.5 - Math.random()));
+            };
+            loadContent();
+        }, [homework]);
 
-                {isWord && <Flashcard word={currentItem} onResult={() => { }} />}
-                {!isWord && (
-                    <div className="card" style={{ padding: '2rem', fontSize: '1.2rem' }}>
-                        <div style={{ fontWeight: 'bold', marginBottom: '1rem' }}>{currentItem.text}</div>
-                        <div style={{ color: 'var(--text-medium)' }}>{currentItem.translation}</div>
-                    </div>
-                )}
+        const handleSubmit = (e) => {
+            e.preventDefault();
+            const currentItem = items[currentIndex];
+            if (userInput.trim().toLowerCase() === currentItem.word.toLowerCase()) {
+                setFeedback('correct');
+                setScore(s => s + 1);
+                setTimeout(nextItem, 1000);
+            } else {
+                setFeedback('incorrect');
+                setTimeout(nextItem, 2000); // Give time to see correct answer if we showed it
+            }
+        };
 
-                <div style={{ marginTop: '2rem' }}>
-                    <button className="btn btn-primary" style={{ width: '100%' }} onClick={handleNext}>
-                        {currentIndex < studyItems.length - 1 ? '下一个' : '完成并提交'} <ArrowRight size={18} style={{ marginLeft: '0.5rem' }} />
+        const nextItem = () => {
+            setUserInput('');
+            setFeedback(null);
+            if (currentIndex + 1 >= items.length) {
+                setShowResult(true);
+                // Calculate percentage
+                // onComplete(score + (feedback === 'correct' ? 1 : 0)); // risky due to closure
+                // let's pass final score
+            } else {
+                setCurrentIndex(c => c + 1);
+            }
+        };
+
+        if (items.length === 0) return <div>加载题目中...</div>;
+
+        if (showResult) {
+            return (
+                <div className="card text-center" style={{ padding: '3rem' }}>
+                    <h2>作业完成!</h2>
+                    <p style={{ fontSize: '2rem', margin: '1rem 0', color: 'var(--primary-600)' }}>
+                        得分: {score} / {items.length}
+                    </p>
+                    <button className="btn btn-primary" onClick={() => onComplete(Math.round((score / items.length) * 100))}>
+                        提交成绩
                     </button>
                 </div>
+            );
+        }
+
+        const currentItem = items[currentIndex];
+
+        return (
+            <div className="card" style={{ maxWidth: '600px', margin: '2rem auto', padding: '2rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
+                    <span>Progress: {currentIndex + 1} / {items.length}</span>
+                    <span>Score: {score}</span>
+                </div>
+
+                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                    <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{currentItem.meaning}</div>
+                    <div style={{ color: 'var(--text-light)' }}>{currentItem.phonetic}</div>
+                </div>
+
+                <form onSubmit={handleSubmit}>
+                    <input
+                        className="input-field"
+                        autoFocus
+                        value={userInput}
+                        onChange={e => setUserInput(e.target.value)}
+                        placeholder="输入单词..."
+                        style={{ textAlign: 'center', fontSize: '1.2rem', borderColor: feedback === 'correct' ? '#22c55e' : feedback === 'incorrect' ? '#ef4444' : '' }}
+                        disabled={feedback !== null}
+                    />
+                    {feedback === 'incorrect' && (
+                        <div style={{ color: '#ef4444', marginTop: '1rem', textAlign: 'center' }}>
+                            正确答案: <strong>{currentItem.word}</strong>
+                        </div>
+                    )}
+                </form>
             </div>
-        )
+        );
+    };
+
+    if (activeHomework) {
+        return <HomeworkPractice homework={activeHomework} onComplete={handleComplete} />;
     }
 
-    // RENDER: List Mode
-    const pending = records.filter(r => r.status === 'PENDING');
-    const completed = records.filter(r => r.status === 'COMPLETED');
-
     return (
-        <div className="page-container">
-            <h2 className="page-title">我的作业中心</h2>
+        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+            <h1 className="text-gradient" style={{ fontSize: '2rem', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <ClipboardList /> 我的作业
+            </h1>
 
-            <section className="dashboard-section" style={{ marginBottom: '2rem' }}>
-                <h3 style={{ fontSize: '1.25rem', marginBottom: '1rem', color: '#d97706' }}>待完成 ({pending.length})</h3>
-                {pending.length === 0 ? <div style={{ color: 'var(--text-light)' }}>暂无待写作业</div> : (
-                    <div className="list-container">
-                        {pending.map(r => (
-                            <div key={r.id} className="card" style={{ padding: '1.5rem', marginBottom: '1rem', background: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div>
-                                    <div style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '0.25rem' }}>{r.homework.title}</div>
-                                    <div style={{ fontSize: '0.9rem', color: 'var(--text-light)' }}>
-                                        <Clock size={14} style={{ display: 'inline', marginRight: '4px' }} />
-                                        截止: {r.homework.deadline ? new Date(r.homework.deadline).toLocaleDateString() : '无期限'}
-                                        <span style={{ marginLeft: '1rem', padding: '2px 6px', background: '#fef3c7', color: '#d97706', borderRadius: '4px', fontSize: '0.8rem' }}>{r.homework.type === 'WORD' ? '单词' : '句子'}</span>
-                                    </div>
+            {assignments.length === 0 && !loading ? (
+                <div className="card" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-light)' }}>
+                    暂无作业
+                </div>
+            ) : (
+                <div style={{ display: 'grid', gap: '1rem' }}>
+                    {assignments.map(assign => (
+                        <div key={assign.id} className="card hover-scale" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.5rem' }}>
+                            <div>
+                                <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{assign.homework.title}</h3>
+                                <div style={{ display: 'flex', gap: '1rem', fontSize: '0.9rem', color: 'var(--text-light)' }}>
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                        <Clock size={16} /> 截止: {assign.homework.deadline ? new Date(assign.homework.deadline).toLocaleDateString() : '无期限'}
+                                    </span>
+                                    <span className={assign.status === 'COMPLETED' ? 'text-green' : 'text-orange'}>
+                                        {assign.status === 'COMPLETED' ? '已完成' : '待完成'}
+                                    </span>
                                 </div>
-                                <button className="btn btn-primary" onClick={() => startHomework(r)}>
-                                    <PlayCircle size={18} style={{ marginRight: '0.5rem' }} /> 开始
+                            </div>
+
+                            {assign.status === 'PENDING' ? (
+                                <button className="btn btn-primary" onClick={() => setActiveHomework(assign)}>
+                                    <PlayCircle size={18} /> 开始作业
                                 </button>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </section>
-
-            <section className="dashboard-section">
-                <h3 style={{ fontSize: '1.25rem', marginBottom: '1rem', color: '#059669' }}>已完成 ({completed.length})</h3>
-                {completed.length === 0 ? <div style={{ color: 'var(--text-light)' }}>暂无已完成作业</div> : (
-                    <div className="list-container">
-                        {completed.map(r => (
-                            <div key={r.id} className="card" style={{ padding: '1rem', marginBottom: '1rem', background: '#f0fdf4', display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: 0.8 }}>
-                                <div>
-                                    <div style={{ fontWeight: 'bold' }}>{r.homework.title}</div>
-                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>
-                                        Completed: {new Date(r.completedAt).toLocaleString()}
-                                    </div>
+                            ) : (
+                                <div style={{ textAlign: 'right' }}>
+                                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--primary-600)' }}>{assign.score}分</div>
+                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>{new Date(assign.completedAt).toLocaleDateString()}</div>
                                 </div>
-                                <div style={{ color: '#059669', display: 'flex', alignItems: 'center' }}>
-                                    <CheckCircle size={20} style={{ marginRight: '0.5rem' }} /> 已提交
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </section>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };

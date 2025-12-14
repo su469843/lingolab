@@ -41,6 +41,7 @@ export default async function handler(req, res) {
             username: user.username,
             role: user.role,
             name: user.name,
+            teacherCode: user.teacherCode,
             students: user.students // Only for teachers
         });
 

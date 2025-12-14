@@ -42,8 +42,10 @@ app.all('/api/homework', adapter(homeworkHandler));
 // Stats & Leaderboard
 import statsRecordHandler from './api/stats/record.js';
 import leaderboardHandler from './api/stats/leaderboard.js';
+import homeworkSubmitHandler from './api/homework/submit.js';
 app.all('/api/stats/record', adapter(statsRecordHandler));
 app.all('/api/stats/leaderboard', adapter(leaderboardHandler));
+app.all('/api/homework/submit', adapter(homeworkSubmitHandler));
 
 app.listen(port, () => {
     console.log(`Local API server running at http://localhost:${port}`);
