@@ -29,7 +29,7 @@ export const playTTS = async (text, voice = 'zh-CN-XiaoxiaoNeural') => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${TTS_TOKEN}`
+                'Authorization': TTS_TOKEN
             },
             body: JSON.stringify({
                 model: 'tts-1',
@@ -43,21 +43,37 @@ export const playTTS = async (text, voice = 'zh-CN-XiaoxiaoNeural') => {
         }
 
         const blob = await response.blob();
+        if (blob.size === 0) throw new Error('Empty audio blob');
+
         const audioUrl = URL.createObjectURL(blob);
         const audio = new Audio(audioUrl);
 
-        await audio.play();
-
-        // Cleanup
-        audio.onended = () => {
-            URL.revokeObjectURL(audioUrl);
-        };
+        await new Promise((resolve, reject) => {
+            audio.onended = () => {
+                URL.revokeObjectURL(audioUrl);
+                resolve();
+            };
+            audio.onerror = (e) => {
+                URL.revokeObjectURL(audioUrl);
+                reject(e);
+            };
+            audio.play().catch(reject);
+        });
 
     } catch (error) {
         console.warn('Edge-TTS failed, falling back to browser synthesis:', error);
+
         // Fallback
+        window.speechSynthesis.cancel(); // Clear queue
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'en-US'; // Default to English for this app
+
+        // Simple language detection for fallback
+        if (/[\u4e00-\u9fa5]/.test(text)) {
+            utterance.lang = 'zh-CN';
+        } else {
+            utterance.lang = 'en-US';
+        }
+
         window.speechSynthesis.speak(utterance);
     }
 };
