@@ -7,6 +7,7 @@ import loginHandler from './api/auth/login.js';
 import registerHandler from './api/auth/register.js';
 import meHandler from './api/auth/me.js';
 import textbooksHandler from './api/textbooks/index.js';
+import textbookBatchHandler from './api/textbooks/batch.js';
 import homeworkHandler from './api/homework/index.js';
 
 dotenv.config();
@@ -35,6 +36,7 @@ app.all('/api/auth/login', adapter(loginHandler));
 app.all('/api/auth/register', adapter(registerHandler));
 app.all('/api/auth/me', adapter(meHandler));
 app.all('/api/textbooks', adapter(textbooksHandler));
+app.all('/api/textbooks/batch', adapter(textbookBatchHandler));
 app.all('/api/homework', adapter(homeworkHandler));
 
 app.listen(port, () => {

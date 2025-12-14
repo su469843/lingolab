@@ -20,6 +20,15 @@ export default async function handler(req, res) {
         }
 
         if (req.method === 'POST') {
+            if (Array.isArray(req.body)) {
+                const createdSentences = await Promise.all(req.body.map(item =>
+                    prisma.sentence.create({
+                        data: { text: item.text, translation: item.translation }
+                    })
+                ));
+                return res.status(201).json(createdSentences);
+            }
+
             // Create new sentence
             const { text, translation } = req.body;
             const newSentence = await prisma.sentence.create({

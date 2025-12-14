@@ -157,14 +157,15 @@ const LoginPage = () => {
 
                             {formData.role === 'STUDENT' && (
                                 <div className="animate-fade-in" style={{ marginBottom: '1rem' }}>
-                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.9rem' }}>老师代码 (选填)</label>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.9rem' }}>老师代码 (必填)</label>
                                     <input
                                         type="text"
                                         name="teacherCode"
                                         value={formData.teacherCode}
                                         onChange={handleChange}
                                         className="input-field"
-                                        placeholder="输入老师的5位代码以绑定"
+                                        placeholder="请输入老师提供的5位代码"
+                                        required
                                     />
                                 </div>
                             )}

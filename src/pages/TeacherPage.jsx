@@ -208,16 +208,87 @@ const TeacherPage = () => {
                 {activeTab === 'words' && (
                     <div className="animate-fade-in">
                         <div className="card" style={{ padding: '2rem', marginBottom: '2rem' }}>
-                            <h3 style={{ marginBottom: '1.5rem', fontSize: '1.5rem' }}>录入新单词</h3>
-                            <form onSubmit={handleAddWord} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                                <input type="text" placeholder="单词" className="input-field" value={newWord.word} onChange={e => setNewWord({ ...newWord, word: e.target.value })} required />
-                                <input type="text" placeholder="音标" className="input-field" value={newWord.phonetic} onChange={e => setNewWord({ ...newWord, phonetic: e.target.value })} />
-                                <input type="text" placeholder="释义" className="input-field" value={newWord.meaning} onChange={e => setNewWord({ ...newWord, meaning: e.target.value })} />
-                                <div style={{ gridColumn: '1/-1' }}>
-                                    <input type="text" placeholder="例句" className="input-field" value={newWord.example} onChange={e => setNewWord({ ...newWord, example: e.target.value })} style={{ width: '100%' }} />
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                                <h3 style={{ fontSize: '1.5rem' }}>录入新单词</h3>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <button
+                                        className={`btn ${!newWord.isBatch ? 'btn-primary' : 'btn-ghost'}`}
+                                        onClick={() => setNewWord({ ...newWord, isBatch: false })}
+                                        style={{ fontSize: '0.9rem', padding: '0.5rem 1rem' }}
+                                    >单条录入</button>
+                                    <button
+                                        className={`btn ${newWord.isBatch ? 'btn-primary' : 'btn-ghost'}`}
+                                        onClick={() => setNewWord({ ...newWord, isBatch: true })}
+                                        style={{ fontSize: '0.9rem', padding: '0.5rem 1rem' }}
+                                    >批量录入</button>
                                 </div>
-                                <button type="submit" className="btn btn-primary" style={{ justifySelf: 'start' }}><Plus size={18} /> 添加</button>
-                            </form>
+                            </div>
+
+                            {!newWord.isBatch ? (
+                                <form onSubmit={handleAddWord} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                                    <input type="text" placeholder="单词" className="input-field" value={newWord.word} onChange={e => setNewWord({ ...newWord, word: e.target.value })} required />
+                                    <input type="text" placeholder="音标" className="input-field" value={newWord.phonetic} onChange={e => setNewWord({ ...newWord, phonetic: e.target.value })} />
+                                    <input type="text" placeholder="释义" className="input-field" value={newWord.meaning} onChange={e => setNewWord({ ...newWord, meaning: e.target.value })} />
+                                    <div style={{ gridColumn: '1/-1' }}>
+                                        <input type="text" placeholder="例句" className="input-field" value={newWord.example} onChange={e => setNewWord({ ...newWord, example: e.target.value })} style={{ width: '100%' }} />
+                                    </div>
+                                    <button type="submit" className="btn btn-primary" style={{ justifySelf: 'start' }}><Plus size={18} /> 添加</button>
+                                </form>
+                            ) : (
+                                <div>
+                                    <textarea
+                                        className="input-field"
+                                        rows="6"
+                                        placeholder={`格式示例：\napple [ˈæpl] 苹果\nbanana [bəˈnɑːnə] 香蕉\n(每行一个单词，支持自动识别 [音标])`}
+                                        value={newWord.batchContent || ''}
+                                        onChange={e => setNewWord({ ...newWord, batchContent: e.target.value })}
+                                        style={{ fontFamily: 'monospace', fontSize: '0.9rem', marginBottom: '1rem' }}
+                                    />
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={async () => {
+                                            if (!newWord.batchContent) return;
+                                            const lines = newWord.batchContent.split('\n').filter(l => l.trim());
+                                            const wordsToCreate = lines.map(line => {
+                                                const parts = line.trim().split(/\s+/);
+                                                let word = parts[0];
+                                                let phonetic = '';
+                                                let meaning = '';
+
+                                                const rest = parts.slice(1).join(' ');
+                                                const phoneticMatch = rest.match(/\[(.*?)\]/);
+
+                                                if (phoneticMatch) {
+                                                    phonetic = `[${phoneticMatch[1]}]`;
+                                                    meaning = rest.replace(phonetic, '').trim();
+                                                } else {
+                                                    meaning = rest;
+                                                }
+                                                return { word, phonetic, meaning };
+                                            });
+
+                                            if (wordsToCreate.length === 0) return;
+
+                                            try {
+                                                const token = localStorage.getItem('token'); // Simplification: using direct fetch here or update context
+                                                const res = await fetch('/api/words', {
+                                                    method: 'POST',
+                                                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                                                    body: JSON.stringify(wordsToCreate)
+                                                });
+                                                if (res.ok) {
+                                                    alert(`成功添加 ${wordsToCreate.length} 个单词`);
+                                                    setNewWord({ ...newWord, batchContent: '' });
+                                                    // Trigger refresh if context allows, or simple window reload for now
+                                                    window.location.reload();
+                                                }
+                                            } catch (e) { console.error(e); alert('添加失败'); }
+                                        }}
+                                    >
+                                        <Plus size={18} /> 确认批量添加
+                                    </button>
+                                </div>
+                            )}
                         </div>
                         <div style={{ display: 'grid', gap: '1rem' }}>
                             {words.map(item => (
@@ -237,12 +308,72 @@ const TeacherPage = () => {
                 {activeTab === 'sentences' && (
                     <div className="animate-fade-in">
                         <div className="card" style={{ padding: '2rem', marginBottom: '2rem' }}>
-                            <h3 style={{ marginBottom: '1.5rem', fontSize: '1.5rem' }}>录入新句子</h3>
-                            <form onSubmit={handleAddSentence} style={{ display: 'grid', gap: '1rem' }}>
-                                <input type="text" placeholder="英文句子" className="input-field" value={newSentence.text} onChange={e => setNewSentence({ ...newSentence, text: e.target.value })} required />
-                                <input type="text" placeholder="中文翻译" className="input-field" value={newSentence.translation} onChange={e => setNewSentence({ ...newSentence, translation: e.target.value })} required />
-                                <button type="submit" className="btn btn-primary" style={{ justifySelf: 'start' }}><Plus size={18} /> 添加</button>
-                            </form>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                                <h3 style={{ fontSize: '1.5rem' }}>录入新句子</h3>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <button
+                                        className={`btn ${!newSentence.isBatch ? 'btn-primary' : 'btn-ghost'}`}
+                                        onClick={() => setNewSentence({ ...newSentence, isBatch: false })}
+                                        style={{ fontSize: '0.9rem', padding: '0.5rem 1rem' }}
+                                    >单条录入</button>
+                                    <button
+                                        className={`btn ${newSentence.isBatch ? 'btn-primary' : 'btn-ghost'}`}
+                                        onClick={() => setNewSentence({ ...newSentence, isBatch: true })}
+                                        style={{ fontSize: '0.9rem', padding: '0.5rem 1rem' }}
+                                    >批量录入</button>
+                                </div>
+                            </div>
+
+                            {!newSentence.isBatch ? (
+                                <form onSubmit={handleAddSentence} style={{ display: 'grid', gap: '1rem' }}>
+                                    <input type="text" placeholder="英文句子" className="input-field" value={newSentence.text} onChange={e => setNewSentence({ ...newSentence, text: e.target.value })} required />
+                                    <input type="text" placeholder="中文翻译" className="input-field" value={newSentence.translation} onChange={e => setNewSentence({ ...newSentence, translation: e.target.value })} required />
+                                    <button type="submit" className="btn btn-primary" style={{ justifySelf: 'start' }}><Plus size={18} /> 添加</button>
+                                </form>
+                            ) : (
+                                <div>
+                                    <textarea
+                                        className="input-field"
+                                        rows="6"
+                                        placeholder={`格式示例：\nHello World | 您好世界\nThis is a pen. | 这是一支笔。\n(每行一句，使用 | 分隔英文和中文)`}
+                                        value={newSentence.batchContent || ''}
+                                        onChange={e => setNewSentence({ ...newSentence, batchContent: e.target.value })}
+                                        style={{ fontFamily: 'monospace', fontSize: '0.9rem', marginBottom: '1rem' }}
+                                    />
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={async () => {
+                                            if (!newSentence.batchContent) return;
+                                            const lines = newSentence.batchContent.split('\n').filter(l => l.trim());
+                                            const itemsToCreate = lines.map(line => {
+                                                // Split by pipe | or tab or Chinese space? Let's use | as suggested in placeholder
+                                                const parts = line.split(/[|｜]/);
+                                                let text = parts[0].trim();
+                                                let translation = parts[1] ? parts[1].trim() : '';
+                                                return { text, translation };
+                                            });
+
+                                            if (itemsToCreate.length === 0) return;
+
+                                            try {
+                                                const token = localStorage.getItem('token');
+                                                const res = await fetch('/api/sentences', {
+                                                    method: 'POST',
+                                                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                                                    body: JSON.stringify(itemsToCreate)
+                                                });
+                                                if (res.ok) {
+                                                    alert(`成功添加 ${itemsToCreate.length} 个句子`);
+                                                    setNewSentence({ ...newSentence, batchContent: '' });
+                                                    window.location.reload();
+                                                }
+                                            } catch (e) { console.error(e); alert('添加失败'); }
+                                        }}
+                                    >
+                                        <Plus size={18} /> 确认批量添加
+                                    </button>
+                                </div>
+                            )}
                         </div>
                         <div style={{ display: 'grid', gap: '1rem' }}>
                             {sentences.map(item => (
@@ -260,7 +391,35 @@ const TeacherPage = () => {
 
                 {/* Simplified Helpers for other tabs */}
                 {activeTab === 'homework' && <div className="card" style={{ padding: '2rem' }}>作业管理功能开发中...</div>}
-                {activeTab === 'students' && <div className="card" style={{ padding: '2rem' }}>学生管理功能开发中...</div>}
+                {activeTab === 'students' && (
+                    <div className="animate-fade-in">
+                        <div className="card" style={{ padding: '2rem', marginBottom: '2rem' }}>
+                            <h3 style={{ marginBottom: '1.5rem', fontSize: '1.5rem' }}>我的学生 ({students.length})</h3>
+                            {students.length === 0 ? (
+                                <div style={{ textAlign: 'center', color: 'var(--text-light)', padding: '2rem' }}>
+                                    暂无学生加入。请分享您的代码给学生：<span style={{ fontWeight: 'bold', color: 'var(--primary-600)', background: 'var(--primary-50)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>{user.teacherCode || '...'}</span>
+                                </div>
+                            ) : (
+                                <div style={{ display: 'grid', gap: '1rem' }}>
+                                    {students.map(student => (
+                                        <div key={student.id} className="card" style={{ padding: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                                <div style={{ width: 40, height: 40, background: 'var(--primary-100)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary-600)' }}>
+                                                    <User size={20} />
+                                                </div>
+                                                <div>
+                                                    <div style={{ fontWeight: 600 }}>{student.name}</div>
+                                                    <div style={{ fontSize: '0.85rem', color: 'var(--text-light)' }}>@{student.username}</div>
+                                                </div>
+                                            </div>
+                                            {/* Future: Add 'View Progress' button */}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

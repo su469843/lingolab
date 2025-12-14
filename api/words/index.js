@@ -20,7 +20,21 @@ export default async function handler(req, res) {
         }
 
         if (req.method === 'POST') {
-            // Create new word
+            // Create new word(s)
+            if (Array.isArray(req.body)) {
+                const createdWords = await Promise.all(req.body.map(item =>
+                    prisma.word.create({
+                        data: {
+                            word: item.word,
+                            phonetic: item.phonetic,
+                            meaning: item.meaning,
+                            example: item.example
+                        }
+                    })
+                ));
+                return res.status(201).json(createdWords);
+            }
+
             const { word, phonetic, meaning, example } = req.body;
             const newWord = await prisma.word.create({
                 data: { word, phonetic, meaning, example }

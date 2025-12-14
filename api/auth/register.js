@@ -71,7 +71,10 @@ export default async function handler(req, res) {
         }
 
         // Student Logic
-        if (userRole === 'STUDENT' && teacherCode) {
+        if (userRole === 'STUDENT') {
+            if (!teacherCode) {
+                return res.status(400).json({ error: 'Student registration requires a valid Teacher Code' });
+            }
             const teacher = await prisma.user.findUnique({
                 where: { teacherCode: teacherCode }
             });
