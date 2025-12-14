@@ -8,6 +8,7 @@
         "dev:backend": "node server.js",
         "build": "vite build",
         "lint": "eslint .",
+        "postinstall": "prisma generate",
         "preview": "vite preview"
     },
     "dependencies": {
