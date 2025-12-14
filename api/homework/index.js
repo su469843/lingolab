@@ -17,6 +17,9 @@ export default async function handler(req, res) {
         const payload = verifyToken(token);
         if (!payload) return res.status(401).json({ error: 'Invalid token' });
 
+        const user = await prisma.user.findUnique({ where: { id: payload.userId } });
+        if (!user) return res.status(401).json({ error: 'User not found' });
+
         // GET Logic
         if (req.method === 'GET') {
             if (user.role === 'TEACHER') {

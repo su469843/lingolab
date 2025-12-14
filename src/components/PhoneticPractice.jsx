@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Volume2, RefreshCw, CheckCircle2, XCircle, ArrowRight, Play, Trophy } from 'lucide-react';
 
 import { playTTS } from '../lib/tts';
@@ -9,6 +9,18 @@ const PhoneticPractice = ({ items }) => {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [score, setScore] = useState(0);
     const [feedback, setFeedback] = useState(null); // 'correct', 'incorrect'
+
+    // Shuffle options for the current question
+    const currentOptions = useMemo(() => {
+        if (group.length === 0) return [];
+        // Create a copy and shuffle it
+        const options = [...group];
+        for (let i = options.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [options[i], options[j]] = [options[j], options[i]];
+        }
+        return options;
+    }, [group, currentQuestionIndex]);
 
     // Initialize a new group of 5
     const startNewGroup = React.useCallback(() => {
@@ -32,9 +44,21 @@ const PhoneticPractice = ({ items }) => {
         if (group.length === 0) startNewGroup();
     }, [items, group.length, startNewGroup]);
 
-    const playSound = (symbol, examples) => {
+    const playSound = async (symbol, examples) => {
         const exampleWord = examples.split(',')[0];
-        playTTS(exampleWord);
+
+        // 1. Play Symbol
+        try {
+            await playTTS(symbol);
+        } catch (e) { console.warn('TTS Symbol failed', e); }
+
+        // 2. Pause 0.2s
+        await new Promise(r => setTimeout(r, 200));
+
+        // 3. Play Word
+        try {
+            await playTTS(exampleWord);
+        } catch (e) { console.warn('TTS Word failed', e); }
     };
 
     const startQuiz = () => {
@@ -163,12 +187,9 @@ const PhoneticPractice = ({ items }) => {
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1rem' }}>
-                    {group.map((item, idx) => {
+                    {currentOptions.map((item, idx) => {
                         const isCorrect = feedback && item.symbol === group[currentQuestionIndex].symbol;
-                        const isWrong = feedback === 'incorrect' && item.symbol !== group[currentQuestionIndex].symbol;
-                        // Note: Logic simplified. Use isCorrect for green, nothing for others unless selected? 
-                        // Actually, if wrong, show correct one in green too?
-                        // Let's just highlight correct one always if feedback present.
+                        // const isWrong = feedback === 'incorrect' && item.symbol !== group[currentQuestionIndex].symbol;
 
                         return (
                             <button

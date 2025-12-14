@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Volume2, RefreshCw, CheckCircle2, XCircle, ArrowRight, BookOpen, Clock, Play } from 'lucide-react';
 
 import { playTTS } from '../lib/tts';
@@ -10,6 +10,18 @@ const WordsPractice = ({ words }) => {
     const [score, setScore] = useState(0);
     const [feedback, setFeedback] = useState(null);
     const [quizType, setQuizType] = useState('meaning'); // 'meaning' or 'phonetic'
+
+    // Shuffle options for the current question
+    const currentOptions = useMemo(() => {
+        if (group.length === 0) return [];
+        // Create a copy and shuffle it
+        const options = [...group];
+        for (let i = options.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [options[i], options[j]] = [options[j], options[i]];
+        }
+        return options;
+    }, [group, currentQuestionIndex]); // Re-shuffle when question changes
 
     // Initialize a new group of 5
     const startNewGroup = React.useCallback(() => {
@@ -163,7 +175,7 @@ const WordsPractice = ({ words }) => {
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
-                    {group.map((item, idx) => {
+                    {currentOptions.map((item, idx) => {
                         const isCorrect = feedback && item.id === group[currentQuestionIndex].id;
                         const isWrong = feedback === 'incorrect' && item.id !== group[currentQuestionIndex].id && false; // Don't highlight wrongs? Or highlight selected wrong? 
                         // Let's rely on button click state if we could, but here we just show Correct one clearly.
