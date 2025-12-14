@@ -3,6 +3,11 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import wordsHandler from './api/words/index.js';
 import sentencesHandler from './api/sentences/index.js';
+import loginHandler from './api/auth/login.js';
+import registerHandler from './api/auth/register.js';
+import meHandler from './api/auth/me.js';
+import textbooksHandler from './api/textbooks/index.js';
+import homeworkHandler from './api/homework/index.js';
 
 dotenv.config();
 
@@ -24,7 +29,13 @@ const adapter = (handler) => async (req, res) => {
 
 // Routes
 app.all('/api/words', adapter(wordsHandler));
+app.all('/api/words', adapter(wordsHandler));
 app.all('/api/sentences', adapter(sentencesHandler));
+app.all('/api/auth/login', adapter(loginHandler));
+app.all('/api/auth/register', adapter(registerHandler));
+app.all('/api/auth/me', adapter(meHandler));
+app.all('/api/textbooks', adapter(textbooksHandler));
+app.all('/api/homework', adapter(homeworkHandler));
 
 app.listen(port, () => {
     console.log(`Local API server running at http://localhost:${port}`);
