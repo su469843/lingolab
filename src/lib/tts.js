@@ -1,6 +1,6 @@
 
 const TTS_API_URL = 'https://tts.20204.qzz.io/v1/audio/speech';
-const TTS_TOKEN = 'fun764';
+const TTS_TOKEN = 'Bearer fun764';
 
 /**
  * Plays text using Edge-TTS API, falling back to browser SpeechSynthesis.
