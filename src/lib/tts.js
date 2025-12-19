@@ -1,8 +1,7 @@
 
 
-const TTS_API_URL = '/api/tts';
-// Token is now managed server-side in /api/tts/index.js
-
+const TTS_API_URL = 'https://tts.20204.qzz.io/v1/audio/speech';
+const TTS_TOKEN = 'Bearer fun764';
 
 /**
  * Plays text using Edge-TTS API, falling back to browser SpeechSynthesis.
@@ -30,7 +29,8 @@ export const playTTS = async (text, voice = 'zh-CN-XiaoxiaoNeural') => {
         const response = await fetch(TTS_API_URL, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': TTS_TOKEN
             },
             body: JSON.stringify({
                 model: 'tts-1',
@@ -38,7 +38,6 @@ export const playTTS = async (text, voice = 'zh-CN-XiaoxiaoNeural') => {
                 voice: targetVoice
             })
         });
-
 
         if (!response.ok) {
             throw new Error(`TTS API Error: ${response.status}`);
