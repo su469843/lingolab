@@ -1,10 +1,8 @@
 
-const TTS_API_URL = '/tts-api/v1/audio/speech';
-// Token now managed via proxy or as a default header if necessary, 
-// but for the sake of simple rewrite we keep it here if the destination requires it.
-// However, if the destination is a direct endpoint that requires this specific token, 
-// the rewrite will just forward the request.
-const TTS_TOKEN = 'Bearer fun764';
+
+const TTS_API_URL = '/api/tts';
+// Token is now managed server-side in /api/tts/index.js
+
 
 /**
  * Plays text using Edge-TTS API, falling back to browser SpeechSynthesis.
@@ -32,8 +30,7 @@ export const playTTS = async (text, voice = 'zh-CN-XiaoxiaoNeural') => {
         const response = await fetch(TTS_API_URL, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': TTS_TOKEN
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 model: 'tts-1',
@@ -41,6 +38,7 @@ export const playTTS = async (text, voice = 'zh-CN-XiaoxiaoNeural') => {
                 voice: targetVoice
             })
         });
+
 
         if (!response.ok) {
             throw new Error(`TTS API Error: ${response.status}`);
