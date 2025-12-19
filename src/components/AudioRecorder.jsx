@@ -40,6 +40,17 @@ function editDistance(s1, s2) {
     return costs[s2.length];
 }
 
+const ERROR_MAP = {
+    'no-speech': '未检测到语音，请再试一次。',
+    'audio-capture': '无法获取麦克风音频，请检查权限。',
+    'not-allowed': '麦克风权限被拒绝，请在浏览器设置中开启。',
+    'service-not-allowed': '语音识别服务不可用。录音功能需要系统语音引擎支持，请在设备上安装并启用 Google 语音服务或其他语音引擎。',
+    'network': '网络连接错误，请检查网络。',
+    'aborted': '录音已中止。',
+    'language-not-supported': '当前浏览器不支持英语 (en-US) 识别。'
+};
+
+
 const AudioRecorder = ({ targetText }) => {
     const [isRecording, setIsRecording] = useState(false);
     const [transcript, setTranscript] = useState('');
@@ -58,8 +69,10 @@ const AudioRecorder = ({ targetText }) => {
             recog.onstart = () => setIsRecording(true);
             recog.onend = () => setIsRecording(false);
             recog.onerror = (event) => {
-                setError('Error: ' + event.error);
+                const errorMessage = ERROR_MAP[event.error] || '发生错误: ' + event.error;
+                setError(errorMessage);
                 setIsRecording(false);
+                console.error('Speech Recognition Error:', event.error);
             };
             recog.onresult = (event) => {
                 const transcript = event.results[0][0].transcript;

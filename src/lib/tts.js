@@ -1,5 +1,9 @@
 
-const TTS_API_URL = 'https://tts.20204.qzz.io/v1/audio/speech';
+const TTS_API_URL = '/tts-api/v1/audio/speech';
+// Token now managed via proxy or as a default header if necessary, 
+// but for the sake of simple rewrite we keep it here if the destination requires it.
+// However, if the destination is a direct endpoint that requires this specific token, 
+// the rewrite will just forward the request.
 const TTS_TOKEN = 'Bearer fun764';
 
 /**
